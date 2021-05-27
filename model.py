@@ -26,6 +26,50 @@ import numpy as np
 import pandas as pd
 import pickle
 import json
+from sklearn.preprocessing import StandardScaler
+
+# Filter for only apples.
+def keep_golden(df):
+    """
+    Filter the dataframe on the Commodities column to only keep
+    the APPLE GOLDEN DELICIOUS category.
+    
+    Parameters
+    ----------
+    df : DataFrame
+        Input DataFrame
+    Returns
+    -------
+    df: DataFrame
+        Altered DataFrame with only APPLE GOLDEN DELICIOUS
+        
+    """
+    df = df.copy()
+    df = df[df["Commodities"] == "APPLE GOLDEN DELICIOUS"]
+    df = df.drop(["Commodities"], axis=1)
+    return df 
+
+# Scaling function.
+def scaling(X):
+    """
+    Scale the values of DataFrame according to the
+    Standardisation process.
+    
+    
+    Parameters
+    ----------
+    X : DataFrame
+        Input DataFrame
+    Returns
+    -------
+    X: DataFrame
+        Scaled DataFrame
+    """
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    X_standardise = pd.DataFrame(X_scaled, columns=X.columns)
+    return X_standardise
+
 
 def _preprocess_data(data):
     """Private helper function to preprocess data for model prediction.
@@ -59,11 +103,14 @@ def _preprocess_data(data):
     # ---------------------------------------------------------------
 
     # ----------- Replace this code with your own preprocessing steps --------
-    
 
-    feature_vector_df = feature_vector_df[(feature_vector_df['Commodities'] == 'APPLE GOLDEN DELICIOUS')]
-    predict_vector = feature_vector_df[['Total_Qty_Sold','Stock_On_Hand']]
-                                
+    keep = ["Weight_Kg", "Low_Price", "High_Price", "Sales_Total", "Total_Qty_Sold", "Total_Kg_Sold", "Stock_On_Hand"]
+
+    feature_vector_df = keep_golden(feature_vector_df)
+    feature_vector_df = feature_vector_df[keep]
+    predict_vector = scaling(feature_vector_df)
+    print(predict_vector)
+
     # ------------------------------------------------------------------------
 
     return predict_vector
